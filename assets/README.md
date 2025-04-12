@@ -4,7 +4,7 @@
 
 ## Descripción
 
-VLSM Calculator V.2 es una aplicación de escritorio que permite calcular subredes de tamaño variable (VLSM - Variable Length Subnet Masking) y aplicar automáticamente la configuración a servidores Ubuntu mediante SSH. La aplicación facilita la planificación y configuración de redes IP, generando reportes en PDF y automatizando la configuración del servidor DHCP.
+VLSM Calculator V.2 es una aplicación de escritorio que te permite calcular subredes de tamaño variable (VLSM - Variable Length Subnet Masking) y aplicar automáticamente la configuración a servidores Ubuntu mediante SSH. La aplicación facilita la planificación y configuración de redes IP, generando reportes en PDF y automatizando la configuración del servidor DHCP.
 
 ## Características Principales
 
