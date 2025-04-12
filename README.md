@@ -1,7 +1,3 @@
-
----
-
-```markdown
 # <img src="assets/logo.png" alt="Logo" width="40"/> VLSM Calculator V.2 - Aplicación Electron
 
 Una aplicación de escritorio construida con Electron para calcular subredes de longitud variable (VLSM) y aplicar configuraciones automáticamente a servidores Ubuntu.
