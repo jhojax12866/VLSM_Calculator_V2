@@ -1,4 +1,8 @@
-# VLSM Calculator V.2 - Aplicación Electron
+
+---
+
+```markdown
+# <img src="assets/logo.png" alt="Logo" width="40"/> VLSM Calculator V.2 - Aplicación Electron
 
 Una aplicación de escritorio construida con Electron para calcular subredes de longitud variable (VLSM) y aplicar configuraciones automáticamente a servidores Ubuntu.
 
@@ -16,30 +20,55 @@ VLSM Calculator V.2 permite:
 
 ## Instalación y Ejecución del Ejecutable
 
-### Opción 1: Instalar desde el ejecutable (Recomendado)
+### Paso 1: Ejecuta el script de construcción
 
-1. **Ejecuta el script de construcción**: 
-   - Abre una terminal en la carpeta raíz de tu proyecto
-   - Ejecuta el siguiente comando:
-\`\`\`
+Abre una terminal en la carpeta raíz de tu proyecto y ejecuta el siguiente comando:
+
+```bash
 node scripts/build-app.js
-\`\`\`
-3. **Ejecuta el instalador**: Haz doble clic en el archivo `.exe` y sigue las instrucciones del asistente de instalación.
-   - Puedes elegir la carpeta de instalación
-   - Se crearán accesos directos en el escritorio y en el menú de inicio
+```
 
-4. **Inicia la aplicación**: Una vez instalada, puedes iniciar la aplicación desde:
-   - El acceso directo en el escritorio
-   - El menú de inicio de Windows (busca "VLSM Calculator V.2")
-   - La carpeta de instalación que elegiste
+Este script:
 
-### Opción 2: Ejecutar en modo portable (Sin instalación)
+- Verificará que el logo exista (o lo generará)
+- Comprobará que todas las dependencias estén instaladas
+- Construirá el ejecutable para Windows
 
-Si prefieres no instalar la aplicación:
+### Paso 2: Encuentra el instalador
 
-1. **Descarga la versión portable**: Localiza la carpeta `win-unpacked` dentro de la carpeta `dist`.
+Una vez completado el proceso, encontrarás el instalador en la carpeta `dist` con el nombre:
+
+```text
+VLSM Calculator V.2-Setup-4.5.0.exe
+```
+
+### Alternativa: Construcción manual
+
+Si prefieres ejecutar los comandos manualmente:
+
+1. Asegúrate de tener todas las dependencias instaladas:
+
+```bash
+npm install
+```
+
+2. Construye la aplicación:
+
+```bash
+npm run build
+```
+
+---
+
+## Otras Opciones de Ejecución
+
+### Ejecutar en modo portable (sin instalación)
+
+1. **Descarga la versión portable**: Localiza la carpeta `win-unpacked` dentro de `dist`.
 
 2. **Ejecuta la aplicación**: Dentro de la carpeta `win-unpacked`, haz doble clic en el archivo `VLSM Calculator V.2.exe`.
+
+---
 
 ## Requisitos del Sistema
 
@@ -75,13 +104,11 @@ Si prefieres no instalar la aplicación:
 
 ### Problemas de Conexión con la API
 
-Si aparece un error de conexión con la API:
-1. Asegúrate de que la API local esté ejecutándose en http://localhost:3001
+1. Asegúrate de que la API local esté ejecutándose en `http://localhost:3001`
 2. Verifica que los endpoints `/vlsm/calculate` y `/vlsm/calculate-json` estén disponibles
 
 ### Problemas de Conexión SSH
 
-Si tienes problemas para conectar con el servidor:
 1. Verifica que el servidor esté encendido y accesible en la red
 2. Asegúrate de que el servicio SSH esté activo en el servidor
 3. Comprueba que no haya firewalls bloqueando la conexión
@@ -89,91 +116,42 @@ Si tienes problemas para conectar con el servidor:
 
 ### Problemas con la Detección de IPs
 
-Si la detección de IPs no funciona:
 1. Asegúrate de que las credenciales del servidor sean correctas
 2. Verifica que el usuario tenga permisos para ejecutar el comando `ip -o a`
 3. Intenta ingresar la IP manualmente
+
+---
 
 ## Para Desarrolladores
 
 ### Requisitos Previos
 
-Antes de instalar y ejecutar esta aplicación desde el código fuente, necesitas tener instalado:
-
 - [Node.js](https://nodejs.org/) (v14.0.0 o superior)
-- [npm](https://www.npmjs.com/) (normalmente viene con Node.js)
-- [Git](https://git-scm.com/) (opcional, para clonar el repositorio)
+- [npm](https://www.npmjs.com/) (incluido con Node.js)
+- [Git](https://git-scm.com/) (opcional)
 
 ### Instalación desde Código Fuente
 
 1. Clona o descarga este repositorio:
-   \`\`\`bash
-   git clone https://github.com/jhojax12866/FrontVLSM_calculator
-   cd vlsm-calculator
-   \`\`\`
+
+```bash
+git clone https://github.com/jhojax12866/FrontVLSM_calculator
+cd vlsm-calculator
+```
+
 2. Instala las dependencias:
-   \`\`\`bash
-   npm install
-   \`\`\`
-3. Inicia la aplicación en modo desarrollo:
-   \`\`\`bash
-   npm start
-   \`\`\`
 
-## Generación del Ejecutable
-
-### Paso 1: Verifica que todos los archivos estén en su lugar
-
-Asegúrate de que la estructura de tu proyecto esté completa:
-- `app.js` en la raíz
-- `src/preload/preload.js`
-- `src/renderer/index.html`, `src/renderer/js/renderer.js`, `src/renderer/css/styles.css`
-- `assets/logo.png` (si no existe, el script intentará generarlo)
-
-### Paso 2: Ejecuta el script de construcción
-
-1. Abre una terminal en la carpeta raíz de tu proyecto
-2. Ejecuta el siguiente comando:
-
-\`\`\`
-node scripts/build-app.js
-\`\`\`
-
-Este script:
-- Verificará que el logo exista (o lo generará)
-- Comprobará que todas las dependencias estén instaladas
-- Construirá el ejecutable para Windows
-
-### Paso 3: Encuentra el instalador
-
-Una vez completado el proceso, encontrarás el instalador en la carpeta `dist` con el nombre:
-\`\`\`
-VLSM Calculator V.2-Setup-4.5.0.exe
-\`\`\`
-
-### Alternativa: Construcción manual
-
-Si prefieres ejecutar los comandos manualmente:
-
-1. Asegúrate de tener todas las dependencias instaladas:
-\`\`\`
+```bash
 npm install
-\`\`\`
+```
 
-2. Construye la aplicación:
-\`\`\`
-npm run build
-\`\`\`
+3. Inicia la aplicación en modo desarrollo:
 
-## Características del instalador
-
-El instalador generado tendrá las siguientes características:
-- Nombre del producto: VLSM Calculator V.2
-- Versión: 4.5.0
-- Permitirá al usuario elegir la carpeta de instalación
-- Creará accesos directos en el escritorio y en el menú de inicio
-- El acceso directo se llamará "VLSM Calculator V.2"
+```bash
+npm start
+```
 
 ---
 
 **Desarrollado con ❤️ por Dev-Jhojan y Dev-Jhonier**
+```
