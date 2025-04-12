@@ -1,0 +1,42 @@
+{
+    "name": "vlsm-calculator",
+    "version": "4.5.0",
+    "description": "Aplicación para calcular VLSM y configurar servidores",
+    "main": "app.js",
+    "scripts": {
+      "start": "electron .",
+      "pack": "electron-builder --dir",
+      "dist": "electron-builder --win",
+      "build": "electron-builder --win --x64"
+    },
+    "author": "Tu Nombre",
+    "dependencies": {
+      "ssh2": "^1.15.0",
+      "pdfkit": "^0.13.0"
+    },
+    "devDependencies": {
+      "electron": "^26.0.0",
+      "electron-builder": "^24.9.1"
+    },
+    "build": {
+      "appId": "com.tuempresa.vlsmcalculator",
+      "productName": "VLSM Calculator V.2",
+      "copyright": "Copyright © 2023",
+      "directories": {
+        "output": "dist"
+      },
+      "win": {
+        "target": "nsis",
+        "icon": "assets/logo.png",
+        "artifactName": "${productName}-Setup-${version}.${ext}"
+      },
+      "nsis": {
+        "oneClick": false,
+        "allowToChangeInstallationDirectory": true,
+        "createDesktopShortcut": true,
+        "createStartMenuShortcut": true,
+        "shortcutName": "VLSM Calculator V.2"
+      }
+    }
+  }
+  

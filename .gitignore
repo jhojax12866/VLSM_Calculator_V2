@@ -1,0 +1,39 @@
+# Node modules
+node_modules/
+
+# Producción / distribución
+dist/
+build/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Configuración del entorno
+.env
+.env.local
+.env.*.local
+
+# Archivos temporales
+*.log
+*.tmp
+
+# IDEs y editores
+.vscode/
+.idea/
+
+# Archivos de pruebas
+coverage/
+test-output/
+
+# Archivos del sistema operativo
+*.swp
+*.swo
+
+# Carpetas pesadas personalizadas (agrega más si las tienes)
+# carpeta_extra/
