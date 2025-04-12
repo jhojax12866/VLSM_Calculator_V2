@@ -1,0 +1,131 @@
+# VLSM Calculator V.2 - Aplicación Electron
+
+Una aplicación de escritorio construida con Electron para calcular subredes de longitud variable (VLSM) y aplicar configuraciones automáticamente a servidores Ubuntu.
+
+## Descripción
+
+VLSM Calculator V.2 permite:
+- Calcular subredes de longitud variable (VLSM) a partir de una dirección de red
+- Visualizar la información detallada de cada subred
+- Enviar configuraciones DHCP automáticamente a un servidor Ubuntu
+- Guardar y gestionar credenciales de servidores de forma segura
+- Detectar automáticamente las interfaces de red en el servidor Ubuntu
+- Generar reportes en PDF con la información de las subredes
+
+## Instalación y Ejecución del Ejecutable
+
+### Opción 1: Instalar desde el ejecutable (Recomendado)
+
+1. **Descarga el instalador**: Localiza el archivo `VLSM Calculator V.2-Setup-4.5.0.exe` en la carpeta `dist` del proyecto.
+
+2. **Ejecuta el instalador**: Haz doble clic en el archivo `.exe` y sigue las instrucciones del asistente de instalación.
+   - Puedes elegir la carpeta de instalación
+   - Se crearán accesos directos en el escritorio y en el menú de inicio
+
+3. **Inicia la aplicación**: Una vez instalada, puedes iniciar la aplicación desde:
+   - El acceso directo en el escritorio
+   - El menú de inicio de Windows (busca "VLSM Calculator V.2")
+   - La carpeta de instalación que elegiste
+
+### Opción 2: Ejecutar en modo portable (Sin instalación)
+
+Si prefieres no instalar la aplicación:
+
+1. **Descarga la versión portable**: Localiza la carpeta `win-unpacked` dentro de la carpeta `dist`.
+
+2. **Ejecuta la aplicación**: Dentro de la carpeta `win-unpacked`, haz doble clic en el archivo `VLSM Calculator V.2.exe`.
+
+## Requisitos del Sistema
+
+- **Sistema Operativo**: Windows 7/8/10/11 (64 bits)
+- **Espacio en disco**: Al menos 200 MB libres
+- **Memoria RAM**: 2 GB o más recomendado
+- **Conexión a red**: Necesaria para conectar con el servidor Ubuntu
+
+## Uso de la Aplicación
+
+### Calculadora VLSM
+
+1. Ingresa la dirección de red (por ejemplo, 172.18.0.0)
+2. Especifica el número de subredes
+3. Ingresa el número de hosts requeridos para cada subred
+4. Haz clic en "Calcular VLSM"
+5. Los resultados se mostrarán en la sección inferior
+6. Puedes generar un PDF con los resultados haciendo clic en "Generar PDF"
+
+### Configuración del Servidor
+
+1. Ve a la pestaña "Configuración del Servidor"
+2. Para detectar las IPs disponibles en tu servidor:
+   - Haz clic en "Detectar IPs del Servidor"
+   - Ingresa la dirección IP inicial, usuario y contraseña
+   - Selecciona la interfaz correcta de la lista de resultados
+3. Completa el formulario con la IP seleccionada, usuario y contraseña
+4. Haz clic en "Guardar Configuración"
+5. Regresa a la pestaña "Calculadora"
+6. Después de calcular VLSM, haz clic en "Enviar al Servidor" para aplicar la configuración
+
+## Solución de Problemas
+
+### Problemas de Conexión con la API
+
+Si aparece un error de conexión con la API:
+1. Asegúrate de que la API local esté ejecutándose en http://localhost:3001
+2. Verifica que los endpoints `/vlsm/calculate` y `/vlsm/calculate-json` estén disponibles
+
+### Problemas de Conexión SSH
+
+Si tienes problemas para conectar con el servidor:
+1. Verifica que el servidor esté encendido y accesible en la red
+2. Asegúrate de que el servicio SSH esté activo en el servidor
+3. Comprueba que no haya firewalls bloqueando la conexión
+4. Verifica que las credenciales sean correctas
+
+### Problemas con la Detección de IPs
+
+Si la detección de IPs no funciona:
+1. Asegúrate de que las credenciales del servidor sean correctas
+2. Verifica que el usuario tenga permisos para ejecutar el comando `ip -o a`
+3. Intenta ingresar la IP manualmente
+
+## Para Desarrolladores
+
+### Requisitos Previos
+
+Antes de instalar y ejecutar esta aplicación desde el código fuente, necesitas tener instalado:
+
+- [Node.js](https://nodejs.org/) (v14.0.0 o superior)
+- [npm](https://www.npmjs.com/) (normalmente viene con Node.js)
+- [Git](https://git-scm.com/) (opcional, para clonar el repositorio)
+
+### Instalación desde Código Fuente
+
+1. Clona o descarga este repositorio:
+   \`\`\`bash
+   git clone https://github.com/jhojax12866/FrontVLSM_calculator
+   cd vlsm-calculator
+   \`\`\`
+2. Instala las dependencias:
+   \`\`\`bash
+   npm install
+   \`\`\`
+3. Inicia la aplicación en modo desarrollo:
+   \`\`\`bash
+   npm start
+   \`\`\`
+
+### Construcción del Instalador
+
+Para crear un nuevo instalador para Windows:
+
+\`\`\`bash
+node scripts/build-app.js
+\`\`\`
+
+O manualmente:
+
+\`\`\`bash
+npm run build
+\`\`\`
+
+El instalador se generará en la carpeta `dist`.
