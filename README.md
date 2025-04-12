@@ -54,17 +54,6 @@ npm install
 npm run build
 ```
 
----
-
-## Otras Opciones de Ejecución
-
-### Ejecutar en modo portable (sin instalación)
-
-1. **Descarga la versión portable**: Localiza la carpeta `win-unpacked` dentro de `dist`.
-
-2. **Ejecuta la aplicación**: Dentro de la carpeta `win-unpacked`, haz doble clic en el archivo `VLSM Calculator V.2.exe`.
-
----
 
 ## Requisitos del Sistema
 
@@ -131,7 +120,7 @@ npm run build
 1. Clona o descarga este repositorio:
 
 ```bash
-git clone https://github.com/jhojax12866/FrontVLSM_calculator
+git clone https://github.com/jhojax12866/VLSM_Calculator_V2.git
 cd vlsm-calculator
 ```
 
