@@ -2,6 +2,8 @@
 
 Una aplicación de escritorio construida con Electron para calcular subredes de longitud variable (VLSM) y aplicar configuraciones automáticamente a servidores Ubuntu.
 
+**Desarrollado por: Dev-Jhojan y Dev-Jhonier**
+
 ## Descripción
 
 VLSM Calculator V.2 permite:
@@ -16,13 +18,17 @@ VLSM Calculator V.2 permite:
 
 ### Opción 1: Instalar desde el ejecutable (Recomendado)
 
-1. **Descarga el instalador**: Localiza el archivo `VLSM Calculator V.2-Setup-4.5.0.exe` en la carpeta `dist` del proyecto.
-
-2. **Ejecuta el instalador**: Haz doble clic en el archivo `.exe` y sigue las instrucciones del asistente de instalación.
+1. **Ejecuta el script de construcción**: 
+   - Abre una terminal en la carpeta raíz de tu proyecto
+   - Ejecuta el siguiente comando:
+\`\`\`
+node scripts/build-app.js
+\`\`\`
+3. **Ejecuta el instalador**: Haz doble clic en el archivo `.exe` y sigue las instrucciones del asistente de instalación.
    - Puedes elegir la carpeta de instalación
    - Se crearán accesos directos en el escritorio y en el menú de inicio
 
-3. **Inicia la aplicación**: Una vez instalada, puedes iniciar la aplicación desde:
+4. **Inicia la aplicación**: Una vez instalada, puedes iniciar la aplicación desde:
    - El acceso directo en el escritorio
    - El menú de inicio de Windows (busca "VLSM Calculator V.2")
    - La carpeta de instalación que elegiste
@@ -114,18 +120,60 @@ Antes de instalar y ejecutar esta aplicación desde el código fuente, necesitas
    npm start
    \`\`\`
 
-### Construcción del Instalador
+## Generación del Ejecutable
 
-Para crear un nuevo instalador para Windows:
+### Paso 1: Verifica que todos los archivos estén en su lugar
 
-\`\`\`bash
+Asegúrate de que la estructura de tu proyecto esté completa:
+- `app.js` en la raíz
+- `src/preload/preload.js`
+- `src/renderer/index.html`, `src/renderer/js/renderer.js`, `src/renderer/css/styles.css`
+- `assets/logo.png` (si no existe, el script intentará generarlo)
+
+### Paso 2: Ejecuta el script de construcción
+
+1. Abre una terminal en la carpeta raíz de tu proyecto
+2. Ejecuta el siguiente comando:
+
+\`\`\`
 node scripts/build-app.js
 \`\`\`
 
-O manualmente:
+Este script:
+- Verificará que el logo exista (o lo generará)
+- Comprobará que todas las dependencias estén instaladas
+- Construirá el ejecutable para Windows
 
-\`\`\`bash
+### Paso 3: Encuentra el instalador
+
+Una vez completado el proceso, encontrarás el instalador en la carpeta `dist` con el nombre:
+\`\`\`
+VLSM Calculator V.2-Setup-4.5.0.exe
+\`\`\`
+
+### Alternativa: Construcción manual
+
+Si prefieres ejecutar los comandos manualmente:
+
+1. Asegúrate de tener todas las dependencias instaladas:
+\`\`\`
+npm install
+\`\`\`
+
+2. Construye la aplicación:
+\`\`\`
 npm run build
 \`\`\`
 
-El instalador se generará en la carpeta `dist`.
+## Características del instalador
+
+El instalador generado tendrá las siguientes características:
+- Nombre del producto: VLSM Calculator V.2
+- Versión: 4.5.0
+- Permitirá al usuario elegir la carpeta de instalación
+- Creará accesos directos en el escritorio y en el menú de inicio
+- El acceso directo se llamará "VLSM Calculator V.2"
+
+---
+
+**Desarrollado con ❤️ por Dev-Jhojan y Dev-Jhonier**
