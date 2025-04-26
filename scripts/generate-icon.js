@@ -36,7 +36,7 @@ function generateSampleIcon(size, outputPath) {
 }
 
 // Crear directorio de assets si no existe
-const assetsDir = path.join(__dirname, "../assets")
+const assetsDir = path.join(__dirname, "./assets")
 const iconsDir = path.join(assetsDir, "icons")
 
 if (!fs.existsSync(assetsDir)) {

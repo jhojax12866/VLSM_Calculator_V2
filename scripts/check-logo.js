@@ -2,7 +2,7 @@ const fs = require("fs")
 const path = require("path")
 
 // Verificar si existe el directorio assets
-const assetsDir = path.join(__dirname, "../assets")
+const assetsDir = path.join(__dirname, "./assets")
 if (!fs.existsSync(assetsDir)) {
   console.log("Creando directorio assets...")
   fs.mkdirSync(assetsDir, { recursive: true })

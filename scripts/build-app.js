@@ -5,7 +5,7 @@ const path = require("path")
 console.log("🚀 Iniciando proceso de construcción de VLSM Calculator V.2...")
 
 // Verificar que exista el logo
-const logoPath = path.join(__dirname, "../assets/logo.png")
+const logoPath = path.join(__dirname, "./assets/logo1.png")
 if (!fs.existsSync(logoPath)) {
   console.log("⚠️ No se encontró el archivo logo.png en la carpeta assets.")
   console.log("Generando un logo temporal...")

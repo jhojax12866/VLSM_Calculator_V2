@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
   
         // Construir la URL con parámetros de consulta
-        const url = new URL("http://localhost:3001/vlsm/calculate")
+        const url = new URL("https://vlsmcalculator-production.up.railway.app/vlsm/calculate")
         url.searchParams.append("network", red)
         url.searchParams.append("subnets", subredes)
   
@@ -162,7 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
           .filter((value) => !isNaN(value) && value > 0)
   
         // Construir la URL para obtener los datos en formato JSON
-        const url = new URL("http://localhost:3001/vlsm/calculate-json")
+        const url = new URL("https://vlsmcalculator-production.up.railway.app/vlsm/calculate-json")
         url.searchParams.append("network", red)
         url.searchParams.append("subnets", subredes)
         hosts.forEach((host) => {
