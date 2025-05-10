@@ -9,7 +9,7 @@ if (!fs.existsSync(assetsDir)) {
 }
 
 // Verificar si existe el archivo logo.png
-const logoPath = path.join(assetsDir, "logo.png")
+const logoPath = path.join(assetsDir, "logo1.png")
 if (!fs.existsSync(logoPath)) {
   console.log("El archivo logo.png no existe en la carpeta assets.")
   console.log("Por favor, coloca un archivo logo.png en la carpeta assets.")

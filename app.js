@@ -63,10 +63,10 @@ async function generateVlsmPdf(vlsmData, outputPath) {
       // Crear un nuevo documento PDF
       const doc = new PDFDocument({
         size: "A4",
-        margin: 50,
+        margin: 40,
         info: {
           Title: `Reporte VLSM ${vlsmData.subnets[0].subnet}`,
-          Author: "Calculadora VLSM",
+          Author: "VLSM Calculator",
         },
       })
 
@@ -91,122 +91,247 @@ async function generateVlsmPdf(vlsmData, outputPath) {
         return sum + Math.pow(2, hostBits)
       }, 0)
 
-      // Encabezado (sin logo, solo texto)
-      doc
-        .fontSize(22)
-        .fillColor("#2c3e50")
-        .text("Calculadora VLSM", 50, 50)
-        .fontSize(10)
-        .fillColor("#7f8c8d")
-        .text("Reporte de subredes", 50, 80)
-        .text("Generado: " + new Date().toLocaleString(), 450, 50, { align: "right" })
+      // Colores para el diseño
+      const colors = {
+        primary: "#0099ff",
+        secondary: "#003366",
+        accent: "#00ccff",
+        light: "#e6f7ff",
+        text: "#333333",
+        lightText: "#666666",
+        headerBg: "#003366",
+        headerText: "#ffffff",
+        rowEven: "#f2f9ff",
+        rowOdd: "#ffffff",
+        border: "#cccccc",
+      }
 
-      doc.moveDown(2)
+      // Obtener dimensiones de la página
+      const pageWidth = doc.page.width
+      const pageHeight = doc.page.height
+      const margin = 40
+      const contentWidth = pageWidth - 2 * margin
+
+      // Encabezado con logo
+      doc.rect(margin, margin, contentWidth, 80).fill(colors.headerBg)
+
+      // Añadir logo
+      try {
+        doc.image(path.join(__dirname, "assets/logo1.png"), margin + 10, margin + 10, { width: 60 })
+      } catch (error) {
+        console.error("Error al cargar el logo:", error)
+        // Si hay error, crear un espacio para el logo
+        doc.rect(margin + 10, margin + 10, 60, 60).fill(colors.primary)
+      }
+
+      // Título del reporte
+      doc
+        .font("Helvetica-Bold")
+        .fontSize(18)
+        .fillColor(colors.headerText)
+        .text("REPORTE DE SUBREDES VLSM", margin + 80, margin + 20)
+
+      // Fecha de generación
+      doc
+        .fontSize(10)
+        .fillColor(colors.headerText)
+        .text(`Generado: ${new Date().toLocaleString()}`, margin + 80, margin + 45)
 
       // Información de la red
       const networkParts = vlsmData.subnets[0].subnet.split(".")
-      const networkBase = `${networkParts[0]}.${networkParts[1]}.0.0`
+      const networkBase = `${networkParts[0]}.${networkParts[1]}.${networkParts[2]}.0`
       const cidr = maskToCidr(vlsmData.subnets[0].netmask)
 
-      doc.fontSize(14).fillColor("#0078D7").text("SUBREDES VLSM", 350, 150, { align: "right" })
+      // Sección de resumen
+      doc
+        .rect(margin, margin + 100, contentWidth, 80)
+        .fill(colors.light)
+        .stroke(colors.border)
 
       doc
-        .fontSize(12)
-        .fillColor("#333")
-        .text(`DIRECCIÓN IP:`, 50, 150)
-        .text(`${networkBase} /${cidr}`, 50, 170)
-        .text(`255.255.0.0`, 50, 190)
+        .fillColor(colors.secondary)
+        .fontSize(14)
+        .text("RESUMEN DE LA RED", margin + 20, margin + 110)
 
+      // Columna izquierda del resumen
       doc
-        .text(`Número de subredes: ${vlsmData.subnets.length}`, 350, 170, { align: "right" })
-        .text(`Número total de hosts: ${totalHosts}`, 350, 190, { align: "right" })
+        .fontSize(10)
+        .fillColor(colors.text)
+        .text(`Dirección de Red: ${networkBase}/${cidr}`, margin + 20, margin + 135)
+        .text(`Máscara de Red: ${vlsmData.subnets[0].netmask}`, margin + 20, margin + 155)
 
-      doc.moveDown(2)
+      // Columna derecha del resumen
+      doc
+        .text(`Número de Subredes: ${vlsmData.subnets.length}`, margin + contentWidth / 2, margin + 135)
+        .text(`Total de Hosts: ${totalHosts}`, margin + contentWidth / 2, margin + 155)
+
+      // Título de la tabla
+      doc
+        .fontSize(14)
+        .fillColor(colors.secondary)
+        .text("DETALLE DE SUBREDES", margin, margin + 200)
 
       // Tabla de subredes
-      const tableTop = 250
+      const tableTop = margin + 230
+
+      // Definir anchos de columnas proporcionales al contenido
       const tableHeaders = ["#", "Hosts", "Subred", "Máscara", "Primer Host", "Último Host", "Broadcast"]
-      const colWidths = [30, 50, 100, 100, 90, 90, 90]
-      let currentY = tableTop
+      const colWidths = [
+        contentWidth * 0.05, // #
+        contentWidth * 0.08, // Hosts
+        contentWidth * 0.17, // Subred
+        contentWidth * 0.2, // Máscara
+        contentWidth * 0.17, // Primer Host
+        contentWidth * 0.17, // Último Host
+        contentWidth * 0.16, // Broadcast
+      ]
 
       // Encabezados de la tabla
-      doc.fillColor("#ffffff")
-      doc.rect(50, currentY, 550, 30).fill("#4CAF50")
-      doc.fillColor("#ffffff")
+      doc.rect(margin, tableTop, contentWidth, 25).fill(colors.primary)
 
-      let currentX = 50
+      let currentX = margin
+      doc.fillColor(colors.headerText).fontSize(9)
+
       tableHeaders.forEach((header, i) => {
-        doc.text(header, currentX + 5, currentY + 10)
+        doc.text(header, currentX + 3, tableTop + 8, { width: colWidths[i], align: "center" })
         currentX += colWidths[i]
       })
 
-      currentY += 30
+      let currentY = tableTop + 25
 
       // Filas de la tabla
       vlsmData.subnets.forEach((subnet, index) => {
-        const rowHeight = 25
+        const rowHeight = 20
         const isEven = index % 2 === 0
 
         // Fondo de la fila
-        doc.fillColor(isEven ? "#f2f2f2" : "#e6e6e6")
-        doc.rect(50, currentY, 550, rowHeight).fill()
+        doc
+          .rect(margin, currentY, contentWidth, rowHeight)
+          .fill(isEven ? colors.rowEven : colors.rowOdd)
+          .stroke(colors.border)
 
-        // Número de fila con fondo verde
-        doc.fillColor("#4CAF50")
-        doc.rect(50, currentY, 30, rowHeight).fill()
-        doc.fillColor("#ffffff")
-        doc.text(index + 1, 50 + 10, currentY + 7)
+        // Número de fila
+        doc.rect(margin, currentY, colWidths[0], rowHeight).fill(colors.primary)
+        doc.fillColor(colors.headerText).text(index + 1, margin, currentY + 5, { width: colWidths[0], align: "center" })
 
         // Datos de la fila
-        doc.fillColor("#333333")
-        doc.text(subnet.hosts.toString(), 50 + 30 + 5, currentY + 7)
+        doc.fillColor(colors.text).fontSize(8)
+
+        let colX = margin + colWidths[0]
+
+        // Hosts
+        doc.text(subnet.hosts.toString(), colX, currentY + 5, { width: colWidths[1], align: "center" })
+        colX += colWidths[1]
 
         // Calcular CIDR para la subred
         const cidr = maskToCidr(subnet.netmask)
-        doc.text(`${subnet.subnet}/${cidr}`, 50 + 30 + 50 + 5, currentY + 7)
-        doc.text(subnet.netmask, 50 + 30 + 50 + 100 + 5, currentY + 7)
-        doc.text(subnet.firstHost, 50 + 30 + 50 + 100 + 100 + 5, currentY + 7)
-        doc.text(subnet.lastHost, 50 + 30 + 50 + 100 + 100 + 90 + 5, currentY + 7)
-        doc.text(subnet.broadcast, 50 + 30 + 50 + 100 + 100 + 90 + 90 + 5, currentY + 7)
+
+        // Subred
+        doc.text(`${subnet.subnet}/${cidr}`, colX, currentY + 5, { width: colWidths[2], align: "center" })
+        colX += colWidths[2]
+
+        // Máscara
+        doc.text(subnet.netmask, colX, currentY + 5, { width: colWidths[3], align: "center" })
+        colX += colWidths[3]
+
+        // Primer Host
+        doc.text(subnet.firstHost, colX, currentY + 5, { width: colWidths[4], align: "center" })
+        colX += colWidths[4]
+
+        // Último Host
+        doc.text(subnet.lastHost, colX, currentY + 5, { width: colWidths[5], align: "center" })
+        colX += colWidths[5]
+
+        // Broadcast
+        doc.text(subnet.broadcast, colX, currentY + 5, { width: colWidths[6], align: "center" })
 
         currentY += rowHeight
+
+        // Si llegamos al final de la página, crear una nueva
+        if (currentY > pageHeight - 150) {
+          doc.addPage()
+
+          // Encabezado de la nueva página
+          doc.rect(margin, margin, contentWidth, 40).fill(colors.headerBg)
+          doc
+            .fillColor(colors.headerText)
+            .fontSize(12)
+            .text("REPORTE DE SUBREDES VLSM (continuación)", margin + 20, margin + 15)
+
+          // Reiniciar la posición Y para la nueva página
+          currentY = margin + 60
+
+          // Repetir encabezados de la tabla
+          doc.rect(margin, currentY, contentWidth, 25).fill(colors.primary)
+
+          currentX = margin
+          doc.fillColor(colors.headerText).fontSize(9)
+
+          tableHeaders.forEach((header, i) => {
+            doc.text(header, currentX + 3, currentY + 8, { width: colWidths[i], align: "center" })
+            currentX += colWidths[i]
+          })
+
+          currentY += 25
+        }
       })
 
       // Estadísticas finales
-      currentY += 30
+      currentY += 20
+
+      doc.rect(margin, currentY, contentWidth, 100).fill(colors.light).stroke(colors.border)
+
+      doc
+        .fillColor(colors.secondary)
+        .fontSize(14)
+        .text("ESTADÍSTICAS DE UTILIZACIÓN", margin + 20, currentY + 15)
+
+      currentY += 40
 
       const statsData = [
-        { label: "Número direcciones proporcionadas por la IP", value: totalAddresses },
-        { label: "Número de Hosts solicitados", value: totalHosts },
-        { label: "Número de Hosts encontrados", value: totalHosts },
-        { label: "Porcentaje de direcciones utilizadas", value: `${Math.round((totalHosts / totalAddresses) * 100)}%` },
+        { label: "Direcciones IP disponibles en la red", value: totalAddresses },
+        { label: "Hosts solicitados", value: totalHosts },
+        { label: "Porcentaje de utilización", value: `${Math.round((totalHosts / totalAddresses) * 100)}%` },
       ]
 
-      statsData.forEach((stat) => {
-        doc.fillColor("#333333")
-        doc.text(stat.label, 250, currentY, { width: 250, align: "right" })
-        doc.text(stat.value.toString(), 520, currentY, { width: 80, align: "right" })
+      statsData.forEach((stat, index) => {
+        const yPos = currentY + index * 20
 
-        // Línea divisoria
         doc
-          .moveTo(250, currentY + 20)
-          .lineTo(600, currentY + 20)
-          .stroke("#e6e6e6")
+          .fillColor(colors.text)
+          .fontSize(10)
+          .text(stat.label, margin + 20, yPos, { width: contentWidth - 120 })
 
-        currentY += 30
+        doc
+          .fillColor(colors.primary)
+          .fontSize(10)
+          .text(stat.value.toString(), margin + contentWidth - 80, yPos, { width: 60, align: "right" })
       })
 
       // Pie de página
-      const today = new Date()
-      const formattedDate = `${today.getDate().toString().padStart(2, "0")}-${(today.getMonth() + 1)
-        .toString()
-        .padStart(2, "0")}-${today.getFullYear()}`
+      const pageCount = doc.bufferedPageRange().count
+      for (let i = 0; i < pageCount; i++) {
+        doc.switchToPage(i)
 
-      doc
-        .fontSize(10)
-        .text(formattedDate, 50, doc.page.height - 50, { align: "left" })
-        .text(`1/${doc.page.pageCount}`, doc.page.width / 2, doc.page.height - 50, { align: "center" })
-        .text("Calculadora VLSM", doc.page.width - 50, doc.page.height - 50, { align: "right" })
+        // Línea separadora
+        doc
+          .moveTo(margin, pageHeight - 50)
+          .lineTo(pageWidth - margin, pageHeight - 50)
+          .stroke(colors.border)
+
+        // Información del pie de página
+        doc
+          .fontSize(8)
+          .fillColor(colors.lightText)
+          .text(`VLSM Calculator - Desarrollado por Dev-Jhojan y Dev-Jhonier`, margin, pageHeight - 40, {
+            align: "left",
+            width: contentWidth / 2,
+          })
+          .text(`Página ${i + 1} de ${pageCount}`, margin + contentWidth / 2, pageHeight - 40, {
+            align: "right",
+            width: contentWidth / 2,
+          })
+      }
 
       // Finalizar el documento
       doc.end()

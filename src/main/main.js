@@ -13,173 +13,161 @@ let mainWindow
 async function generateVlsmPdf(vlsmData, outputPath) {
   return new Promise((resolve, reject) => {
     try {
-      // Crear un nuevo documento PDF
+      const PDFDocument = require("pdfkit");
       const doc = new PDFDocument({
-        size: "A4",
-        margin: 50,
-        info: {
-          Title: `Reporte VLSM ${vlsmData.subnets[0].subnet}`,
-          Author: "Calculadora VLSM",
-        },
-      })
+        size: 'A4',
+        layout: 'landscape',
+        margin: 40,
+      });
 
-      // Pipe el PDF a un archivo
-      const stream = fs.createWriteStream(outputPath)
-      doc.pipe(stream)
+      const stream = fs.createWriteStream(outputPath);
+      doc.pipe(stream);
 
-      // Calcular totales
-      const totalHosts = vlsmData.subnets.reduce((sum, subnet) => sum + subnet.hosts, 0)
-      const totalAddresses = vlsmData.subnets.reduce((sum, subnet) => {
-        // Calcular el número de direcciones en esta subred basado en la máscara
-        const maskParts = subnet.netmask.split(".")
-        let hostBits = 0
+      const totalHosts = vlsmData.subnets.reduce((sum, s) => sum + s.hosts, 0);
+      const totalAddresses = vlsmData.subnets.reduce((sum, s) => {
+        const maskParts = s.netmask.split(".");
+        let hostBits = 0;
         maskParts.forEach((part) => {
-          const num = Number.parseInt(part)
+          const num = parseInt(part);
           for (let i = 7; i >= 0; i--) {
-            if (!(num & (1 << i))) {
-              hostBits++
-            }
+            if (!(num & (1 << i))) hostBits++;
           }
-        })
-        return sum + Math.pow(2, hostBits)
-      }, 0)
+        });
+        return sum + Math.pow(2, hostBits);
+      }, 0);
 
-      // Encabezado (sin logo)
-      doc
-        .fontSize(22)
-        .fillColor("#2c3e50")
-        .text("Calculadora FLSM & VLSM", 50, 50)
-        .fontSize(10)
-        .fillColor("#7f8c8d")
-        .text("Reporte de subredes", 50, 80)
-        .text("Generado: " + new Date().toLocaleString(), 450, 50, { align: "right" })
+      const networkParts = vlsmData.subnets[0].subnet.split(".");
+      const networkBase = `${networkParts[0]}.${networkParts[1]}.0.0`;
+      const cidr = maskToCidr(vlsmData.subnets[0].netmask);
 
-      doc.moveDown(2)
+      const headers = ['#', 'Hosts', 'Subred', 'Máscara', 'Primer Host', 'Último Host', 'Broadcast'];
+      const columnWidths = [30, 50, 120, 110, 120, 120, 120];
+      const rowHeight = 24;
+      const startX = 40;
 
-      // Información de la red
-      const networkParts = vlsmData.subnets[0].subnet.split(".")
-      const networkBase = `${networkParts[0]}.${networkParts[1]}.0.0`
-      const cidr = maskToCidr(vlsmData.subnets[0].netmask)
+      let y;
 
-      doc.fontSize(14).fillColor("#0078D7").text("SUBREDES VLSM", 350, 150, { align: "right" })
-
-      doc
-        .fontSize(12)
-        .fillColor("#333")
-        .text(`DIRECCIÓN IP:`, 50, 150)
-        .text(`${networkBase} /${cidr}`, 50, 170)
-        .text(`255.255.0.0`, 50, 190)
-        .text(`Subdividir otra red`, 50, 210, { color: "#0078D7", underline: true })
-
-      doc
-        .text(`Número de subredes: ${vlsmData.subnets.length}`, 350, 170, { align: "right" })
-        .text(`Número total de hosts: ${totalHosts}`, 350, 190, { align: "right" })
-
-      doc.moveDown(2)
-
-      // Tabla de subredes
-      const tableTop = 250
-      const tableHeaders = ["#", "Hosts", "Subred", "Máscara", "Primer Host", "Último Host", "Broadcast"]
-      const colWidths = [30, 50, 100, 100, 90, 90, 90]
-      let currentY = tableTop
-
-      // Encabezados de la tabla
-      doc.fillColor("#ffffff")
-      doc.rect(50, currentY, 550, 30).fill("#4CAF50")
-      doc.fillColor("#ffffff")
-
-      let currentX = 50
-      tableHeaders.forEach((header, i) => {
-        doc.text(header, currentX + 5, currentY + 10)
-        currentX += colWidths[i]
-      })
-
-      currentY += 30
-
-      // Filas de la tabla
-      vlsmData.subnets.forEach((subnet, index) => {
-        const rowHeight = 25
-        const isEven = index % 2 === 0
-
-        // Fondo de la fila
-        doc.fillColor(isEven ? "#f2f2f2" : "#e6e6e6")
-        doc.rect(50, currentY, 550, rowHeight).fill()
-
-        // Número de fila con fondo verde
-        doc.fillColor("#4CAF50")
-        doc.rect(50, currentY, 30, rowHeight).fill()
-        doc.fillColor("#ffffff")
-        doc.text(index + 1, 50 + 10, currentY + 7)
-
-        // Datos de la fila
-        doc.fillColor("#333333")
-        doc.text(subnet.hosts.toString(), 50 + 30 + 5, currentY + 7)
-
-        // Calcular CIDR para la subred
-        const cidr = maskToCidr(subnet.netmask)
-        doc.text(`${subnet.subnet}/${cidr}`, 50 + 30 + 50 + 5, currentY + 7)
-        doc.text(subnet.netmask, 50 + 30 + 50 + 100 + 5, currentY + 7)
-        doc.text(subnet.firstHost, 50 + 30 + 50 + 100 + 100 + 5, currentY + 7)
-        doc.text(subnet.lastHost, 50 + 30 + 50 + 100 + 100 + 90 + 5, currentY + 7)
-        doc.text(subnet.broadcast, 50 + 30 + 50 + 100 + 100 + 90 + 90 + 5, currentY + 7)
-
-        currentY += rowHeight
-      })
-
-      // Estadísticas finales
-      currentY += 30
-
-      const statsData = [
-        { label: "Número direcciones proporcionadas pora la IP", value: totalAddresses },
-        { label: "Número de Hosts solicitados", value: totalHosts },
-        { label: "Número de Hosts encontrados", value: totalHosts },
-        { label: "Porcentaje de direcciones utilizadas", value: `${Math.round((totalHosts / totalAddresses) * 100)}%` },
-        {
-          label: "Porcentaje de direcciones encontradas",
-          value: `${Math.round((totalHosts / totalAddresses) * 100)}%`,
-        },
-      ]
-
-      statsData.forEach((stat) => {
-        doc.fillColor("#333333")
-        doc.text(stat.label, 250, currentY, { width: 250, align: "right" })
-        doc.text(stat.value.toString(), 520, currentY, { width: 80, align: "right" })
-
-        // Línea divisoria
+      const drawHeader = () => {
         doc
-          .moveTo(250, currentY + 20)
-          .lineTo(600, currentY + 20)
-          .stroke("#e6e6e6")
+          .fillColor('#1D3557')
+          .fontSize(20)
+          .text('📄 Reporte de Subredes VLSM', { align: 'center' })
+          .moveDown(0.5)
+          .fontSize(10)
+          .fillColor('#457B9D')
+          .text(`Generado: ${new Date().toLocaleString()}`, { align: 'center' })
+          .moveDown(1.5);
 
-        currentY += 30
-      })
+        doc
+          .fontSize(12)
+          .fillColor('#333')
+          .text(`📍 Dirección IP Base: `, { continued: true })
+          .fillColor('#000')
+          .text(`${networkBase}/${cidr}`)
+          .moveDown(0.3)
+          .fillColor('#333')
+          .text(`📋 Número de Subredes: `, { continued: true })
+          .fillColor('#000')
+          .text(`${vlsmData.subnets.length}`)
+          .moveDown(0.3)
+          .fillColor('#333')
+          .text(`👥 Número Total de Hosts: `, { continued: true })
+          .fillColor('#000')
+          .text(`${totalHosts}`)
+          .moveDown(1.5);
 
-      // Pie de página
-      const today = new Date()
-      const formattedDate = `${today.getDate().toString().padStart(2, "0")}-${(today.getMonth() + 1).toString().padStart(2, "0")}-${today.getFullYear()}`
+        y = doc.y;
+        doc.rect(startX, y, 700, rowHeight).fill('#4CAF50');
+        drawRow(headers, y, true);
+        y += rowHeight;
+      };
 
-      doc
-        .fontSize(10)
-        .text(formattedDate, 50, doc.page.height - 50, { align: "left" })
-        .text(`1/${doc.page.pageCount}`, doc.page.width / 2, doc.page.height - 50, { align: "center" })
-        .text("Calculadora VLSM - © @arcadio", doc.page.width - 50, doc.page.height - 50, { align: "right" })
+      const drawRow = (row, y, isHeader = false, bgColor = null) => {
+        let x = startX;
+        if (bgColor) {
+          doc.rect(x, y, 700, rowHeight).fill(bgColor);
+        }
 
-      // Finalizar el documento
-      doc.end()
+        row.forEach((text, i) => {
+          doc
+            .font(isHeader ? 'Helvetica-Bold' : 'Helvetica')
+            .fontSize(9)
+            .fillColor(isHeader ? '#ffffff' : '#333333')
+            .text(String(text), x + 5, y + 7, {
+              width: columnWidths[i] - 10,
+              align: 'center',
+              ellipsis: true,
+            });
+          x += columnWidths[i];
+        });
+      };
 
-      // Cuando el stream se cierre, resolver la promesa
-      stream.on("finish", () => {
-        resolve(outputPath)
-      })
+      const ensureSpace = (spaceNeeded) => {
+        if (doc.y + spaceNeeded > doc.page.height - 60) {
+          doc.addPage();
+          doc.y = 40;
+          drawHeader();
+        }
+      };
 
-      stream.on("error", (err) => {
-        reject(err)
-      })
-    } catch (error) {
-      reject(error)
+      drawHeader();
+
+      vlsmData.subnets.forEach((subnet, index) => {
+        ensureSpace(rowHeight + 20);
+        const row = [
+          `${index + 1}`,
+          subnet.hosts,
+          `${subnet.subnet}/${maskToCidr(subnet.netmask)}`,
+          subnet.netmask,
+          subnet.firstHost,
+          subnet.lastHost,
+          subnet.broadcast,
+        ];
+        const bgColor = index % 2 === 0 ? '#f5f5f5' : '#ffffff';
+        drawRow(row, y, false, bgColor);
+        y += rowHeight;
+      });
+
+      doc.moveDown(2);
+
+      const stats = [
+        ['Direcciones posibles:', totalAddresses],
+        ['Hosts solicitados:', totalHosts],
+        ['Porcentaje utilizado:', `${Math.round((totalHosts / totalAddresses) * 100)}%`],
+      ];
+
+      stats.forEach(([label, value]) => {
+        ensureSpace(30);
+        doc
+          .fontSize(10)
+          .fillColor('#555')
+          .text(label, 400, doc.y, { width: 200, align: 'right' })
+          .text(value.toString(), 620, doc.y, { width: 60, align: 'right' })
+          .moveDown(0.8);
+      });
+
+      doc.end();
+      doc.on('end', () => {
+        const range = doc.bufferedPageRange();
+        for (let i = 0; i < range.count; i++) {
+          doc.switchToPage(i);
+          doc
+            .fontSize(8)
+            .fillColor('#aaaaaa')
+            .text(`Página ${i + 1} de ${range.count} • Calculadora VLSM - © 2025`, 40, doc.page.height - 30, {
+              align: 'center',
+            });
+        }
+        resolve(outputPath);
+      });
+
+      stream.on('error', (err) => reject(err));
+    } catch (err) {
+      reject(err);
     }
-  })
+  });
 }
+
 
 // Función auxiliar para convertir máscara a CIDR
 function maskToCidr(mask) {
